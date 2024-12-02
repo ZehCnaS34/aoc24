@@ -2,9 +2,10 @@
   (:use [prelude]))
 
 (def input
-  (as-> (binding [*test* false] (slurp-problem 2 1)) $
-        (parse-numbers $)
-        (vec $)))
+  (-> (binding [*test* false]
+        (slurp-problem 2 1))
+      (parse-numbers)
+      (vec)))
 
 (defn safe?
   [coll]
@@ -22,11 +23,12 @@
             (some safe?)))))
 
 (def part-1
-  (as-> input $
-        (filter safe? $)
-        (count $)))
+  (->> input
+       (filter safe?)
+       (count)))
 
 (def part-2
-  (as-> input $
-        (filter safe-after-edit? $)
-        (count $)))
+  (->> input
+       (filter safe-after-edit?)
+       (count)))
+
