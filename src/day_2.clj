@@ -15,12 +15,11 @@
 
 (defn safe-after-edit?
   ([coll]
-   (some
-     safe?
-     (for [i (range (count coll))
-           :let [left (take i coll)
-                 right (drop (inc i) coll)]]
-       (concat left right)))))
+   (or (safe? coll)
+       (->> (count coll)
+            (range)
+            (map #(concat (take % coll) (drop (inc %) coll)))
+            (some safe?)))))
 
 (def part-1
   (as-> input $
