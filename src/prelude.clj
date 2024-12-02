@@ -11,3 +11,11 @@
         (jio/resource $)
         (slurp $)
         (str/split $ #"\n")))
+
+(defn counts
+  [list]
+  (reduce
+    (fn [counts item]
+      (update counts item (fnil inc 0)))
+    {}
+    list))
