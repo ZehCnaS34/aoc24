@@ -12,6 +12,13 @@
         (slurp $)
         (str/split $ #"\n")))
 
+(defn parse-numbers
+  [input]
+  (map
+    (comp
+      #(mapv parse-long %)
+      #(str/split % #"\s+")) input))
+
 (defn counts
   [list]
   (reduce
