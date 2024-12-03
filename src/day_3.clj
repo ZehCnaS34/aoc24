@@ -1,19 +1,24 @@
 (ns day-3
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as str]
+            [clojure.test :as t])
   (:use [prelude]))
 
-(def input
-  (->> (binding [*test* false]
-         (slurp-problem 3 1))
-       (str/join "")))
-
-(def part-1
-  (let [m (re-matcher #"mul\((\d{1,3}),(\d{1,3})\)" input)]
+(defn input
+  [pattern]
+  (let [m (->> (slurp-problem 3 1)
+               (str/join "")
+               (re-matcher pattern)
+               (binding [*test* false]))]
     (->> #(re-find m)
          (repeatedly)
-         (take-while some?)
-         (map (comp #(apply * %) #(map parse-long %) rest))
-         (reduce +))))
+         (take-while some?))))
+
+(def part-1
+  (->> (input #"mul\((\d{1,3}),(\d{1,3})\)")
+       (map (comp #(apply * %) #(map parse-long %) rest))
+       (reduce +)))
+
+(t/is (= 166357705 part-1))
 
 (defn compute-part-2
   ([input]
@@ -29,15 +34,14 @@
          (+ (first input) (compute-part-2 (rest input) enabled?)))))))
 
 (def part-2
-  (let [m (re-matcher #"mul\((\d{1,3}),(\d{1,3})\)|(do|don't)\(\)" input)]
-    (->> #(re-find m)
-         (repeatedly)
-         (take-while some?)
-         (sequence
-           (comp
-             (map rest)
-             (map #(remove nil? %))
-             (map #(case (count %)
-                     2 (->> % (map parse-long) (apply *))
-                     (-> % (first) (keyword))))))
-         (compute-part-2))))
+  (->> (input #"mul\((\d{1,3}),(\d{1,3})\)|(do|don't)\(\)")
+       (sequence
+         (comp
+           (map rest)
+           (map #(remove nil? %))
+           (map #(case (count %)
+                   2 (->> % (map parse-long) (apply *))
+                   (-> % (first) (keyword))))))
+       (compute-part-2)))
+
+(t/is (= 88811886 part-2))
