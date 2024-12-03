@@ -38,6 +38,6 @@
              (map rest)
              (map #(remove nil? %))
              (map #(case (count %)
-                     2 (apply * (map parse-long %))
-                     (-> % first keyword)))))
+                     2 (->> % (map parse-long) (apply *))
+                     (-> % (first) (keyword))))))
          (compute-part-2))))
