@@ -33,10 +33,11 @@
     (->> #(re-find m)
          (repeatedly)
          (take-while some?)
-         (map
-           (fn [[_ & match]]
-             (let [match (remove nil? match)]
-               (case (count match)
-                 2 (apply * (map parse-long match))
-                 (-> match first keyword )))))
+         (sequence
+           (comp
+             (map rest)
+             (map #(remove nil? %))
+             (map #(case (count %)
+                     2 (apply * (map parse-long %))
+                     (-> % first keyword)))))
          (compute-part-2))))
