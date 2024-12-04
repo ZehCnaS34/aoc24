@@ -1,5 +1,6 @@
 (ns day-4
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as str]
+            [clojure.test :as t])
   (:use [prelude]))
 
 (def input
@@ -32,12 +33,14 @@
        (<= 0 col (dec cols))))
 
 (defn read-word
-  [grid pos direction]
-  (->> (path pos direction)
-       (take-while (partial in-bounds? (bounds grid)))
-       (take 4)
-       (map #(get-in grid %))
-       (str/join)))
+  ([grid pos direction]
+   (read-word grid pos direction 4))
+  ([grid pos direction amount]
+   (->> (path pos direction)
+        (take-while (partial in-bounds? (bounds grid)))
+        (take amount)
+        (map #(get-in grid %))
+        (str/join))))
 
 (defn xmas-count
   [grid pos]
@@ -52,3 +55,26 @@
           col (range (count (first input)))
           :when (= \X (get-in input [row col]))]
       (xmas-count input [row col]))))
+
+
+;; EW
+(def part-2
+  (reduce + (for [row ((comp range count) input)
+                  col ((comp range count first) input)
+                  :when (= \A (get-in input [row col]))]
+              (reduce + (let [pos [row col]
+                              se #(-> % south east)
+                              sw #(-> % south west)
+                              nw #(-> % north west)
+                              ne #(-> % north east)
+                              directions [se sw nw ne]
+                              starts [(nw pos) (ne pos) (se pos) (sw pos)]
+                              diagonals (map #(hash-map :pos %1 :dir %2) starts directions)
+                              crosses (map vector diagonals (->> diagonals cycle rest (take 4)))]
+                          (for [[o t] crosses
+                                :let [o' (read-word input (:pos o) (:dir o) 3)
+                                      t' (read-word input (:pos t) (:dir t) 3)]
+                                :when (= o' t' "MAS")]
+                            1))))))
+
+(t/is (= 1974 part-2))
