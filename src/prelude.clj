@@ -12,6 +12,18 @@
         (slurp $)
         (str/split $ #"\n")))
 
+(defmacro load-problem
+  ([]
+   `(load-problem 1))
+  ([part]
+   `(let [matches# (re-matches #"day-(\d+)" (name (ns-name *ns*)))
+          day# (parse-long (second matches#))]
+      (slurp-problem day# ~part))))
+
+(defn parse-grid
+  [input]
+  (mapv vec input))
+
 (defn parse-numbers
   [input]
   (map
